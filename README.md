@@ -88,11 +88,24 @@ Por último crea un usuario airflow por defecto con el nombre de uno de los alum
 
 ## 4.- Spark-app.sh
 
+Arranca la aplicación de predicción de vuelos 'Flight Predicator' a través de spark submit y con los datos almacenados en mongo. Requiere que estén instalados todos los componentes para un correcto funcionamiento del comando. Se usa en vez de utilizar intellIJ para realizar las predicciones y lanzar la aplicacion. (Mejora 1).
+
 ## 5.- Flask.sh
+
+Arranca la aplicación de flask para visualizar la predicción de nuevos vuelos introduccidos por el usuario. Se puede observar a través del puerto 5000 de localhost en un navegador.
 
 ## 6.- Airflow-web.sh 
 
+Arranca Airflow para tener acceso desde el puerto 3000 de localhost.
+
 ## 7.- Airflow-scheduler.sh
+
+Arranca Airflow Scheduler para su uso.
+
+## 8.- Stop-primal-services.sh
+
+Este comando pone fin a la práctica y sirve para parar todos los recursos lanzados en el terminal con start-primal-services.sh. Pausa y elimina los procesos de Kafka, Mongo y Zookeper.
+
 ## Inicio de la práctica: Descarga de datos
 
 Una vez hemos visto el objetivo de la práctica y realizado una brebe introducción a ella, iniciamos con la descarga de datos necesarios para realizar la parte básica del proyecto (Posteriormente se comentarán las mejoras realizadas). Primero creamos un nuevo directorio y accedemos a el `practica_big_data_2019`.
@@ -104,88 +117,139 @@ sudo sh ../installations.sh
 Una vez ha acabado, realizamos la descarga de datos.
 Para utilizar los datos de [Realtime Predictive Analytics](http://datasyndrome.com/video) hay que correr el siguiente comando: 
 
-```
+ ```
 resources/download_data.sh
-```
+ ```
+
 ## Instalación
 
 es necesario realizar la instalación de cada uno de los siguientes componentes incluidos en la arquitectura. En el caso de IntellIJ no es del todo necesario siempre y cuando se instale Apache-Submit, como se verá en el apartado de dicha mejora.
 En la siguiente lista, se incluye los comandos necesarios para realizar la instalación.
 
  - [Intellij](https://www.jetbrains.com/help/idea/installation-guide.html) (jdk_1.8)
- - [Pyhton3](https://realpython.com/installing-python/) (Suggested version 3.7) 
+ ```
+   sudo apt install -y openjdk-8-jdk-headless
+   sudo snap install intellij-idea-community --classic
+ ```
+
+ - [Pyhton3](https://realpython.com/installing-python/) (Suggested version 3.7)
  - [PIP](https://pip.pypa.io/en/stable/installing/)
+ ```
+   sudo apt-get install -y python3 python3-pip
+ ```
+ 
  - [SBT](https://www.scala-sbt.org/release/docs/Setup.html) 
+ ```
+   sudo apt-get install apt-transport-https curl gnupg -yqq
+   echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | sudo tee   /etc/apt/sources.list.d/sbt.list
+  echo "deb https://repo.scala-sbt.org/scalasbt/debian /" | sudo tee /etc/apt/sources.list.d/sbt_old.list
+   curl -sL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x2EE0EA64E40A89B84B2DF73499E82A75642AC823" | sudo -H gpg --no-default-keyring --keyring gnupg-ring:/etc/apt/trusted.gpg.d/scalasbt-release.gpg --import
+   sudo chmod 644 /etc/apt/trusted.gpg.d/scalasbt-release.gpg
+   sudo apt-get update
+   sudo apt-get install sbt
+ ```
+ 
  - [MongoDB](https://docs.mongodb.com/manual/installation/)
+ ```
+   wget -qO - https://www.mongodb.org/static/pgp/server-6.0.asc | sudo apt-key add -
+  echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/6.0 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-6.0.list
+  sudo apt-get update
+```
+
+Aqui reside un problema y es que en MongoDB no esta soportado oficialmente en ubuntu 22.04 y hay que instalar este paquete para que sea posible compatibilizarlo:
+```
+  wget http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+  sudo dpkg -i ./libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+  rm libssl1.1_1.1.1f-1ubuntu2_amd64.deb
+  sudo apt-get install -y mongodb-org
+```
+
  - [Spark](https://spark.apache.org/docs/latest/) (Mandatory version 3.1.2)
+ ```
+   wget https://archive.apache.org/dist/spark/spark-3.1.2/spark-3.1.2-bin-hadoop3.2.tgz
+   tar -xvzf spark-3.1.2-bin-hadoop3.2.tgz
+   sudo mv spark-3.1.2-bin-hadoop3.2 /opt/spark
+   echo 'export SPARK_HOME=/opt/spark' >> ~/.profile
+   echo 'export PATH=$PATH:/opt/spark/bin:/opt/spark/sbin' >> ~/.profile
+   echo 'export PYSPARK_PYTHON=/usr/bin/python3' >> ~/.profile
+   source ~/.profile
+ ```
  - [Scala](https://www.scala-lang.org)(Suggested version 2.12)
+ 
+ ```
+   wget https://downloads.lightbend.com/scala/2.12.17/scala-2.12.17.deb
+   sudo dpkg -i ./scala-2.12.17.deb
+   rm scala-2.12.17.deb 
+ ```
+ 
  - [Zookeeper](https://zookeeper.apache.org/releases.html)
+ ```
+   wget https://dlcdn.apache.org/zookeeper/zookeeper-3.7.1/apache-zookeeper-3.7.1-bin.tar.gz
+   tar -xvzf apache-zookeeper-3.7.1-bin.tar.gz
+   rm apache-zookeeper-3.7.1-bin.tar.gz
+ ```
+ 
  - [Kafka](https://kafka.apache.org/quickstart) (Mandatory version kafka_2.12-3.0.0)
- 
- ### Install python libraries
- 
  ```
-  pip install -r requirements.txt
+   wget https://downloads.apache.org/kafka/3.1.2/kafka_2.12-3.1.2.tgz
+   tar -xvzf kafka_2.12-3.1.2.tgz
+   rm kafka_2.12-3.1.2.tgz
  ```
- ### Start Zookeeper
  
- Open a console and go to the downloaded Kafka directory and run:
+ ### Arrancar Zookeper y Kafka
  
+ Se instalan las librerias de python necesarias:
+ ```
+   pip install -r requirements.txt
+ ```
+ ### Arrancar Zookeper
+ 
+ En la refencia del proyecto, se utiliza un comando desactualizado para las versiones actuales de Zookeper, por lo que mejor tengan en cuenta el comando facilitado a continuación:
+ Ejecutar el comando en otro terminal dentro del mismo directorio de la práctica (Donde se ha instalado Zookeper).
+ ```
+  apache-zookeeper-3.7.1-bin/bin/zkServer.sh start apache-zookeeper-3.7.1-bin/conf/zoo_sample.cfg 
+ ```
+ Y se para con 
+ ```
+   apache-zookeeper-3.7.1-bin/bin/zkServer.sh stop apache-zookeeper-3.7.1-bin/conf/zoo_sample.cfg
  ```
    bin/zookeeper-server-start.sh config/zookeeper.properties
   ```
-  ### Start Kafka
+  ### Arrancar Kafka
   
-  Open a console and go to the downloaded Kafka directory and run:
+  Desde otro Terminal en el mismo directorio, ejecutar el siguiente comando:
   
   ```
-    bin/kafka-server-start.sh config/server.properties
+   kafka_2.12-3.1.2/bin/kafka-server-start.sh kafka_2.12-3.1.2/config/server.properties
    ```
-   open a new console in teh same directory and create a new topic :
+  Crear un nuevo topic de Kafka en otro terminal:
   ```
-      bin/kafka-topics.sh \
-        --create \
-        --bootstrap-server localhost:9092 \
-        --replication-factor 1 \
-        --partitions 1 \
-        --topic flight_delay_classification_request
+   kafka_2.12-3.1.2/bin/kafka-topics.sh --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic flight_delay_classification_request
    ```
-   You should see the following message:
+  Se debería observar el siguiente mensaje
   ```
     Created topic "flight_delay_classification_request".
   ```
-  You can see the topic we created with the list topics command:
+  Se puede obserbar la lista de topics con el siguiente comando:
   ```
-      bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+     kafka_2.12-3.1.2/bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
   ```
   Output:
   ```
     flight_delay_classification_request
   ```
-  (Optional) You can oen a new console with a consumer in order to see the messeges sent to that topic
+  (Optional) Se puede abrir una consola con un consumidor para ver los mensajes que llega al topic
   ```
-  bin/kafka-console-consumer.sh \
-      --bootstrap-server localhost:9092 \
-      --topic flight_delay_classification_request \
-      --from-beginning
+    kafka_2.12-3.1.2/bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic flight_delay_classification_request --from-beginning
+
   ```
-  ## Import the distance records to MongoDB
-  Check if you have Mongo up and running:
+  ## Importar los datos a mongo
+  Arrancar mongo y comprobar que está en funcionamiento:
   ```
-  service mongod status
+    sudo systemctl start mongod
+    sudo systemctl status mongod
   ```
-  Output:
-  ```
-  mongod.service - MongoDB Database Server
-     Loaded: loaded (/lib/systemd/system/mongod.service; disabled; vendor preset: 
-     Active: active (running) since Tue 2019-10-01 14:58:53 CEST; 2h 11min ago
-       Docs: https://docs.mongodb.org/manual
-   Main PID: 7816 (mongod)
-     CGroup: /system.slice/mongod.service
-             └─7816 /usr/bin/mongod --config /etc/mongod.conf
   
-  oct 01 14:58:53 amunoz systemd[1]: Started MongoDB Database Server.
-  ```
   Run the import_distances.sh script
   ```
   ./resources/import_distances.sh
@@ -206,30 +270,22 @@ En la siguiente lista, se incluye los comandos necesarios para realizar la insta
   }
 
   ```
-  ## Train and Save de the model with PySpark mllib
-  In a console go to the base directory of the cloned repo, then go to the `practica_big_data_2019` directory
-  ```
-    cd practica_big_data_2019
-  ```
-  Set the `JAVA_HOME` env variable with teh path of java installation directory, for example:
+  ## Entrenar el modelo y guardarlo con PySpark mllib
+  
+  Set the `JAVA_HOME`:
   ```
     export JAVA_HOME=/usr/lib/jvm/java-1.8.0-openjdk-amd64
   ```
-  Set the `SPARK_HOME` env variable with teh path of your Spark installation folder, for example:
-  ```
-    export SPARK_HOME=/opt/spark
-  ```
-  Now, execute the script `train_spark_mllib_model.py`
+  
+  Ejecutar el script `train_spark_mllib_model.py`
   ```
       python3 resources/train_spark_mllib_model.py .
   ```
-  As result, some files will be saved in the `models` folder 
-  
+  Los resultados deberían haberse almacenado sin problemas en /models, para comporbarlo:  
   ```
   ls ../models
-  
   ```   
-  ## Run Flight Predictor
+  ## Arrancarla la Predicción de Vuelos "Flight Predictor":
   First, you need to change the base_paht val in the MakePrediction scala class,
   change that val for the path where you clone repo is placed:
   ```
