@@ -1,5 +1,6 @@
-# Agile_Data_Code_2
+# Ptáctica Big Data 2022
 
+Como código y práctica base se ha utilizado el repositorio y curso comentado a continuació
 Code for [Agile Data Science 2.0](http://shop.oreilly.com/product/0636920051619.do), O'Reilly 2017. Now available at the [O'Reilly Store](http://shop.oreilly.com/product/0636920051619.do), on [Amazon](https://www.amazon.com/Agile-Data-Science-2-0-Applications/dp/1491960116) (in Paperback and Kindle) and on [O'Reilly Safari](https://www.safaribooksonline.com/library/view/agile-data-science/9781491960103/). Also available anywhere technical books are sold!
 
 This is also the code for the [Realtime Predictive Analytics](http://datasyndrome.com/video) video course and [Introduction to PySpark](http://datasyndrome.com/training) live course!
@@ -63,24 +64,53 @@ We create an entire realtime predictive system with a web front-end to submit pr
 
 ![Predicting Flight Delays UI](images/predicting_flight_kafka_waiting.png)
 
-## Downloading Data
+## Correr la práctica
 
-Once the server comes up, download the data and you are ready to go. First change directory into the `practica_big_data_2019` directory.
+Para instalar y ejecutar la práctica, se pueden utilizar los scripts de python añadidos a dicha carpeta, donde ahora veremos la funcionalidad de cada uno de ellos:
+
+## 1.- Installations.sh
+
+Realiza la instalación de todos los componentes necesarios para realizar la práctica, con las versiones definidas en el apartado instalación con los correspondientes comandos mencionados. Si no se ha realizado la instalación de las aplicaciones mencionadas, no se puede inicializar la práctica.
+
+## 2.- Environment.sh
+
+Realiza la configuracion de variables de entorno necesarias en el repositorio. Realiza la expertación de todas ellas para un funcionamiento correcto en todos los terminales necesarios y especifica los pasos necesarios para ejecutar la práctica. En todos los terminales que se utilicen en la práctica, se tiene que ejecutar previamente este script.
+
+## 3.- Start-primal-services.sh
+
+Con dicho script comenzamos con la descarga de datos de la práctica, rellenando los datos de vuelos de diferentes años para disponer de la información para nuestra base de datos.
+Posteriormente el comando corre los scripts de Zookeper y Kafka para arracncarlos, y crea el topic 'flight_delay_classification_request'.
+
+Inicializa la base de datos en MongoDB e importa en ella las distancias.
+Posteriormente realiza el entrenamiento del modelo a través de PySpark mllib y almacena el modelo en la base de datos.
+
+Por último crea un usuario airflow por defecto con el nombre de uno de los alumnos que realizarón la práctica y una contraseña e inicializa la base de datos en airflow. Finalmente instala el DAG de datos necesarios para el uso de Apache Airflow.
+
+## 4.- Spark-app.sh
+
+## 5.- Flask.sh
+
+## 6.- Airflow-web.sh 
+
+## 7.- Airflow-scheduler.sh
+## Inicio de la práctica: Descarga de datos
+
+Una vez hemos visto el objetivo de la práctica y realizado una brebe introducción a ella, iniciamos con la descarga de datos necesarios para realizar la parte básica del proyecto (Posteriormente se comentarán las mejoras realizadas). Primero creamos un nuevo directorio y accedemos a el `practica_big_data_2019`.
 
 ```
 cd practica_big_data_2019
+sudo sh ../installations.sh
 ```
-Now download the data.
-
-For the [Realtime Predictive Analytics](http://datasyndrome.com/video)  run: 
+Una vez ha acabado, realizamos la descarga de datos.
+Para utilizar los datos de [Realtime Predictive Analytics](http://datasyndrome.com/video) hay que correr el siguiente comando: 
 
 ```
 resources/download_data.sh
 ```
-## Installation
+## Instalación
 
-You need to install each component included in the architecture. 
-The following list includes some links with the installation procedure for each component:
+es necesario realizar la instalación de cada uno de los siguientes componentes incluidos en la arquitectura. En el caso de IntellIJ no es del todo necesario siempre y cuando se instale Apache-Submit, como se verá en el apartado de dicha mejora.
+En la siguiente lista, se incluye los comandos necesarios para realizar la instalación.
 
  - [Intellij](https://www.jetbrains.com/help/idea/installation-guide.html) (jdk_1.8)
  - [Pyhton3](https://realpython.com/installing-python/) (Suggested version 3.7) 
